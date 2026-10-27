@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Serene Home — предпросмотр Android TV</title>
+<style>
+:root{color-scheme:dark;font-family:Arial,Roboto,sans-serif}
+*{box-sizing:border-box}
+html,body{padding:0;margin:0;width:100%;height:100%;background:#080c17;color:white;overflow:hidden}
+.wallpaper{position:fixed;inset:0;background:url('./app/src/main/res/drawable-nodpi/sunset.jpg') center / cover no-repeat}
+.scrim{position:fixed;inset:0;pointer-events:none;background:linear-gradient(to bottom,rgba(9,12,29,.65),transparent 29%,transparent 48%,rgba(7,10,22,.73))}
+.main{position:relative;width:100%;height:100%;padding:4.1vh 4.7vw 3.8vh;display:flex;flex-direction:column;justify-content:space-between}
+.header{display:flex;justify-content:space-between;align-items:flex-start}
+.clock{font-weight:200;font-size:clamp(40px,5.1vw,94px);letter-spacing:-.055em;line-height:1.04}
+.date{font-size:clamp(12px,1.4vw,25px);color:#f4e4e8;margin-top:8px}
+.actions{display:flex;gap:1.15vw}
+.circle{width:clamp(44px,4.9vw,92px);height:clamp(44px,4.9vw,92px);display:grid;place-items:center;border:1px solid #ffffff30;background:#46485e75;border-radius:50%;cursor:pointer;color:#f4f2f7}
+.circle svg{width:48%;height:48%;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.dock-wrap{margin-bottom:1.1vh}
+.overline{font-weight:500;letter-spacing:.24em;font-size:clamp(10px,1.05vw,20px);margin-bottom:2.3vh;color:#f9e7e9}
+.dock{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1.3vw}
+.tile{appearance:none;text-align:left;color:#fff;border-radius:1.65vw;border:1px solid #ffffff59;background:linear-gradient(#3b3948bf,#191e2edb);min-height:clamp(110px,17vh,193px);padding:1.6vw 1.8vw 1.15vw;cursor:pointer;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;transition:transform .15s ease,background .15s ease,box-shadow .15s ease,border-color .15s ease;outline:0;min-width:0}
+.tile.selected,.circle.selected{transform:scale(1.055);border:2px solid #fff1f2;box-shadow:0 0 28px #f6cedb90,0 8px 40px #070a1690;background:linear-gradient(#575267c9,#202339e0);z-index:2}
+.appicon{width:clamp(40px,4.65vw,83px);height:clamp(40px,4.65vw,83px);border-radius:20%;font-size:clamp(17px,1.9vw,34px);font-weight:bold;display:grid;place-items:center;line-height:1}
+.tv{background:#ffffff30;font-size:1.5em;}
+.vk{background:linear-gradient(135deg,#078aff,#1564d6)}
+.kinopoisk{background:#07070b;color:#fa8400;font-size:2.7em;font-weight:900}
+.vlc{background:linear-gradient(#fd9e3c,#c95b0d);font-size:2em}
+.appname{font-size:clamp(15px,1.86vw,33px);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.subtitle{font-size:clamp(10px,1.09vw,20px);color:#efe1e5;margin-top:.48vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.help{font-size:clamp(11px,1.12vw,20px);color:#e2ced5;margin-top:1.9vh;opacity:.9}
+.modal{display:none;position:fixed;inset:0;align-items:center;justify-content:center;background:#0009;z-index:12}
+.modal.visible{display:flex}
+.dialog{max-width:620px;width:min(80vw,620px);padding:32px;border-radius:24px;background:#222330f2;border:1px solid #ffffff33;box-shadow:0 20px 90px #000}
+.dialog h2{margin:0 0 16px;font-size:26px}.dialog p{font-size:17px;line-height:1.5;color:#e5dee5}
+.dialog button{margin-top:16px;background:#f2e7eb;color:#191b24;border:0;border-radius:12px;padding:12px 28px;font-weight:bold}
+.previewtag{position:fixed;right:22px;bottom:11px;font-size:12px;color:#ffffff8f}
+@media(max-aspect-ratio:4/3){.dock{gap:9px}.tile{padding:12px}.appname{font-size:15px}.subtitle{font-size:10px}}
+</style>
+</head>
+<body>
+<div class="wallpaper"></div><div class="scrim"></div>
+<div class="main">
+  <header class="header">
+    <div><div class="clock" id="clock">20:36</div><div class="date" id="date">вторник, 27 октября</div></div>
+    <div class="actions">
+      <button class="circle" data-label="Все приложения" aria-label="Все приложения"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></button>
+      <button class="circle" data-label="Источники" aria-label="Источники"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M9 20h6m-3-3v3m0-11 4 4 4-4"/></svg></button>
+      <button class="circle" data-label="Настройки" aria-label="Настройки"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 1v3m0 16v3M1 12h3m16 0h3M4 4l2 2m12 12 2 2M20 4l-2 2M6 18l-2 2"/></svg></button>
+    </div>
+  </header>
+  <section class="dock-wrap" aria-label="Основные приложения">
+    <div class="overline">ВАШ ДОМАШНИЙ ЭКРАН</div>
+    <div class="dock">
+      <button class="tile selected" data-label="Live TV"><span class="appicon tv">▣</span><span><div class="appname">Live TV</div><div class="subtitle">Каналы с антенны</div></span></button>
+      <button class="tile" data-label="VK Видео"><span class="appicon vk">▶</span><span><div class="appname">VK Видео</div><div class="subtitle">Видео и эфиры</div></span></button>
+      <button class="tile" data-label="Кинопоиск"><span class="appicon kinopoisk">К</span><span><div class="appname">Кинопоиск</div><div class="subtitle">Фильмы и сериалы</div></span></button>
+      <button class="tile" data-label="VLC"><span class="appicon vlc">▲</span><span><div class="appname">VLC</div><div class="subtitle">Ваши медиафайлы</div></span></button>
+    </div>
+    <div class="help">OK — открыть &nbsp; • &nbsp; Стрелки — выбрать &nbsp; • &nbsp; ⚙ — настройки</div>
+  </section>
+</div>
+<div class="previewtag">Browser preview · не APK</div>
+<div class="modal" id="modal"><div class="dialog"><h2 id="mt"></h2><p>Это демонстрация оформления в браузере. В Android TV-приложении эта кнопка откроет соответствующее приложение или системное меню. Назначение приложений выполняется на самом телевизоре.</p><button id="close">Закрыть</button></div></div>
+<script>
+const tiles=[...document.querySelectorAll('.tile')],topButtons=[...document.querySelectorAll('.circle')],modal=document.getElementById('modal');
+let focus=tiles[0],previous=focus;
+function setFocus(el){document.querySelectorAll('.selected').forEach(n=>n.classList.remove('selected'));el.classList.add('selected');focus=el;}
+function openButton(el){previous=el;document.getElementById('mt').textContent=el.dataset.label;modal.classList.add('visible');document.getElementById('close').focus();}
+[...tiles,...topButtons].forEach(t=>{t.addEventListener('click',()=>openButton(t));t.addEventListener('mouseenter',()=>setFocus(t));});
+function close(){modal.classList.remove('visible');setFocus(previous);}
+document.getElementById('close').onclick=close;
+window.addEventListener('keydown',e=>{
+ if(modal.classList.contains('visible')){if(['Escape','Backspace','Enter'].includes(e.key)){close();e.preventDefault();}return;}
+ if(e.key==='Enter'){openButton(focus);e.preventDefault();return;}
+ let arr=tiles.includes(focus)?tiles:topButtons, i=arr.indexOf(focus);
+ if(e.key==='ArrowRight')setFocus(arr[Math.min(i+1,arr.length-1)]);
+ else if(e.key==='ArrowLeft')setFocus(arr[Math.max(0,i-1)]);
+ else if(e.key==='ArrowUp')setFocus(topButtons[Math.min(2,Math.max(0,i-1))]);
+ else if(e.key==='ArrowDown')setFocus(tiles[Math.min(3,i+1)]);
+ else return;
+ e.preventDefault();
+});
+function updateClock(){let d=new Date();document.getElementById('clock').textContent=d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});document.getElementById('date').textContent=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});}
+updateClock();setInterval(updateClock,30000);
+</script>
+</body>
+</html>
