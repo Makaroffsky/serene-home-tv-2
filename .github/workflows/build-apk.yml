@@ -1,0 +1,54 @@
+name: Build Serene Home APK
+
+# The file must be committed at .github/workflows/build-apk.yml,
+# directly under the repository root (not under XiaomiSereneHome/).
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build and verify Android TV APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install SDK platform and build tools
+        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+
+      # The project intentionally has no Gradle wrapper binary.
+      - name: Set up Gradle 8.7
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Check app matching rules
+        run: |
+          mkdir -p "$RUNNER_TEMP/serene-tests"
+          javac -d "$RUNNER_TEMP/serene-tests" app/src/main/java/ru/family/serenehome/AppMatcher.java tools/TestMatcher.java
+          java -cp "$RUNNER_TEMP/serene-tests" ru.family.serenehome.TestMatcher
+
+      - name: Compile debug APK
+        run: gradle --no-daemon :app:assembleDebug
+
+      - name: Upload installable APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: serene-home-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 30
